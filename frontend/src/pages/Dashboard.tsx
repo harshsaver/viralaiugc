@@ -5,6 +5,7 @@ import NavbarWrapper from "@/components/NavbarWrapper";
 import ContentGenerator from "@/components/ContentGenerator";
 import VideoGrid from "@/components/VideoGrid";
 import CarouselMaker from "@/components/carousel/CarouselMaker";
+import GifsDisplay from "@/components/GifsDisplay";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
@@ -16,7 +17,7 @@ const Dashboard = () => {
   
   useEffect(() => {
     // Validate tab parameter
-    const validTabs = ["aiugc", "videos", "carousels"];
+    const validTabs = ["aiugc", "videos", "carousels", "gifs"];
     if (!validTabs.includes(currentTab)) {
       navigate("/dashboard?tab=aiugc", { replace: true });
     }
@@ -41,6 +42,8 @@ const Dashboard = () => {
             <CarouselMaker />
           </div>
         );
+      case "gifs":
+        return <GifsDisplay />;
       default:
         return <ContentGenerator />;
     }

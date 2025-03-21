@@ -92,6 +92,7 @@ const Navbar = () => {
         <NavItem icon={<Home size={18} />} label="AI UGC Avatars" to="/dashboard?tab=aiugc" active={currentTab === "aiugc"} />
         <NavItem icon={<Film size={18} />} label="My Videos" to="/dashboard?tab=videos" active={currentTab === "videos"} />
         <NavItem icon={<Grid size={18} />} label="Carousels" to="/dashboard?tab=carousels" active={currentTab === "carousels"} />
+        <NavItem icon={<Image size={18} />} label="Gifs" to="/dashboard?tab=gifs" active={currentTab === "gifs"} />
         <NavItem icon={<Layers size={18} />} label="Memes" disabled={true} />
         <NavItem icon={<Calendar size={18} />} label="Schedule" disabled={true} />
       </nav>
