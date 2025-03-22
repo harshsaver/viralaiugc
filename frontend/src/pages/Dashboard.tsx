@@ -10,7 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user } = useAuth(); 
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const currentTab = searchParams.get("tab") || "aiugc";
