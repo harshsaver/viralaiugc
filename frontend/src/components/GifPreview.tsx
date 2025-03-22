@@ -182,7 +182,7 @@ const GifPreview = ({
             playsInline
             loop
             autoPlay={isPlaying}
-            muted={true}
+            muted={isMuted}
             onLoadedData={() => setGifVideoLoaded(true)}
           />
         )}
