@@ -50,6 +50,9 @@ const GifsDisplay = () => {
   const { user, profile } = useAuth();
   const totalSteps = 3;
 
+  // Use the 'gif' template_type that exists in Supabase
+  const actualTemplateType = "gif";
+  
   // Fetch background data when selectedBackground changes
   useEffect(() => {
     const fetchBackgroundData = async () => {
@@ -230,6 +233,7 @@ const GifsDisplay = () => {
             selectedAvatar={selectedGif}
             onSelectAvatar={setSelectedGif}
             onSelectTemplate={handleSelectTemplate}
+            templateType={actualTemplateType}
           />
           
           {/* Backgrounds Grid */}
@@ -271,14 +275,7 @@ const GifsDisplay = () => {
               Select Audio
             </Button>
             
-            <Button 
-              variant="outline" 
-              className="w-full justify-start font-normal" 
-              onClick={handleOpenBackgroundUpload}
-            >
-              <Upload className="h-4 w-4 mr-2" />
-              Upload Background
-            </Button>
+            {/* Background upload button removed as requested */}
             
             <Button 
               className="w-full" 

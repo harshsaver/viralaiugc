@@ -242,7 +242,7 @@ export type Database = {
     }
     Enums: {
       plan: "free" | "pro" | "ultra"
-      template_type: "aiavatar" | "game" | "usergenerated"
+      template_type: "aiavatar" | "game" | "usergenerated" | "gif"
       text_alignment: "top" | "center" | "bottom"
       video_alignment: "side" | "top" | "serial"
       video_type: "aiugc" | "meme"

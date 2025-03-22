@@ -16,6 +16,7 @@ interface AvatarGridProps {
   selectedAvatar: number | null;
   onSelectAvatar: (index: number) => void;
   onSelectTemplate?: (template: Template) => void;
+  templateType?: TemplateType;
 }
 
 const AvatarGrid = ({ 
@@ -23,13 +24,14 @@ const AvatarGrid = ({
   totalSteps, 
   selectedAvatar, 
   onSelectAvatar,
-  onSelectTemplate 
+  onSelectTemplate,
+  templateType
 }: AvatarGridProps) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [templates, setTemplates] = useState<Template[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [itemsPerPage, setItemsPerPage] = useState(10); // Default value
-  const [activeTab, setActiveTab] = useState<string>('aiavatar');
+  const [activeTab, setActiveTab] = useState<string>(templateType || 'aiavatar');
   const [isVideoUploadOpen, setIsVideoUploadOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
@@ -191,14 +193,16 @@ const AvatarGrid = ({
     <div className="space-y-4 fade-in">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <h3 className="text-base font-medium">{step}. AI Avatar</h3>
-          <Tabs value={activeTab} onValueChange={handleTabChange} className="ml-2">
-            <TabsList className="h-7">
-              <TabsTrigger value="aiavatar" className="text-xs px-3 py-1">AI Avatar</TabsTrigger>
-              <TabsTrigger value="game" className="text-xs px-3 py-1">Game</TabsTrigger>
-              <TabsTrigger value="madebyme" className="text-xs px-3 py-1">Made by Me</TabsTrigger>
-            </TabsList>
-          </Tabs>
+          <h3 className="text-base font-medium">{step}. {templateType ? 'Gifs' : 'AI Avatar'}</h3>
+          {!templateType && (
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="ml-2">
+              <TabsList className="h-7">
+                <TabsTrigger value="aiavatar" className="text-xs px-3 py-1">AI Avatar</TabsTrigger>
+                <TabsTrigger value="game" className="text-xs px-3 py-1">Game</TabsTrigger>
+                <TabsTrigger value="madebyme" className="text-xs px-3 py-1">Made by Me</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          )}
         </div>
         
         <div className="flex items-center gap-2">
