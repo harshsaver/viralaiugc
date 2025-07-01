@@ -9,62 +9,55 @@ interface Product {
 
 export async function generateHooks(
   product: Product, 
-  openaiApiKey: string,
   count: number = 10
 ): Promise<string[]> {
   try {
-    const systemPrompt = `You are a social media content expert specializing in creating viral hooks for TikTok and Instagram Reels. Generate engaging, attention-grabbing hooks that drive viewer retention.`;
-    
-    const userPrompt = `Generate ${count} viral hooks for the following product:
+    // Try Vercel serverless function first (for production)
+    // Then fall back to local backend (for development)
+    const endpoints = [
+      '/api/generate-hooks',  // Vercel serverless function
+      'http://localhost:3000/generate-hooks'  // Local backend
+    ];
 
-App Name: ${product.app_name}
-Description: ${product.short_description}
-${product.long_description ? `Detailed Description: ${product.long_description}` : ''}
-${product.target_audience ? `Target Audience: ${product.target_audience}` : ''}
-${product.example_hooks ? `Example hooks from competitors:\n${JSON.parse(product.example_hooks).join('\n')}` : ''}
-${product.example_hashtags ? `Relevant hashtags: ${JSON.parse(product.example_hashtags).join(' ')}` : ''}
+    let lastError: Error | null = null;
 
-Requirements:
-- Keep hooks short and punchy (under 50 characters ideally)
-- Use psychological triggers (curiosity, FOMO, urgency)
-- Include power words and emotional language
-- Make them scroll-stopping and engaging
-- Vary the hook styles (questions, statements, POV, challenges)
-- Make them relevant to the product's value proposition
+    for (const endpoint of endpoints) {
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            product,
+            count
+          }),
+        });
 
-Return ONLY the hooks, one per line, without numbers or bullets.`;
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || `Server error: ${response.status}`);
+        }
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${openaiApiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        temperature: 0.8,
-        max_tokens: 500,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.status}`);
+        const data = await response.json();
+        
+        if (!data.success) {
+          throw new Error(data.message || 'Failed to generate hooks');
+        }
+        
+        return data.hooks || [];
+      } catch (error) {
+        lastError = error as Error;
+        // If it's not a network error, throw it immediately
+        if (!(error instanceof TypeError && error.message.includes('Failed to fetch'))) {
+          throw error;
+        }
+        // Otherwise, try the next endpoint
+      }
     }
 
-    const data = await response.json();
-    const content = data.choices[0]?.message?.content || '';
-    
-    // Split by newlines and filter out empty lines
-    const hooks = content
-      .split('\n')
-      .map(line => line.trim())
-      .filter(line => line.length > 0 && !line.match(/^\d+[\.\)]/)); // Remove numbered lines
-    
-    return hooks.slice(0, count);
+    // If all endpoints failed
+    throw new Error('Unable to connect to AI service. Please ensure either the backend server is running locally or deploy to Vercel.');
   } catch (error) {
     console.error('Error generating hooks:', error);
     throw error;

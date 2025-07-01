@@ -2,19 +2,9 @@ import { useState, useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ChevronLeft, ChevronRight, Sparkles, Key } from "lucide-react";
+import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import { generateHooks } from "@/services/openaiService";
 import { toast } from "sonner";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
 interface HookInputProps {
   value: string;
@@ -28,17 +18,6 @@ const HookInput = ({ value, onChange, step, totalSteps, selectedProduct }: HookI
   const [aiHooks, setAiHooks] = useState<string[]>([]);
   const [currentHookIndex, setCurrentHookIndex] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [apiKeyDialogOpen, setApiKeyDialogOpen] = useState(false);
-  const [apiKey, setApiKey] = useState("");
-  const [tempApiKey, setTempApiKey] = useState("");
-
-  // Load API key from localStorage
-  useEffect(() => {
-    const savedKey = localStorage.getItem('openai_api_key');
-    if (savedKey) {
-      setApiKey(savedKey);
-    }
-  }, []);
 
   // Handle hook selection from AI hooks
   useEffect(() => {
@@ -53,20 +32,19 @@ const HookInput = ({ value, onChange, step, totalSteps, selectedProduct }: HookI
       return;
     }
 
-    if (!apiKey) {
-      setApiKeyDialogOpen(true);
-      return;
-    }
-
     setIsGenerating(true);
     try {
-      const newHooks = await generateHooks(selectedProduct, apiKey, 10);
+      const newHooks = await generateHooks(selectedProduct, 10);
       setAiHooks(prevHooks => [...prevHooks, ...newHooks]);
       setCurrentHookIndex(aiHooks.length); // Jump to first new hook
       toast.success(`Generated ${newHooks.length} new hooks!`);
     } catch (error: any) {
       console.error('Error generating hooks:', error);
-      toast.error(error.message || 'Failed to generate hooks');
+      if (error.message.includes('API key')) {
+        toast.error('OpenAI API key not configured. Please check environment variables.');
+      } else {
+        toast.error(error.message || 'Failed to generate hooks');
+      }
     } finally {
       setIsGenerating(false);
     }
@@ -81,20 +59,9 @@ const HookInput = ({ value, onChange, step, totalSteps, selectedProduct }: HookI
   const handleNextHook = async () => {
     if (currentHookIndex < aiHooks.length - 1) {
       setCurrentHookIndex(currentHookIndex + 1);
-    } else if (currentHookIndex === aiHooks.length - 1 && selectedProduct && apiKey) {
+    } else if (currentHookIndex === aiHooks.length - 1 && selectedProduct) {
       // Auto-generate more hooks when reaching the end
       await handleGenerateHooks();
-    }
-  };
-
-  const handleSaveApiKey = () => {
-    if (tempApiKey) {
-      localStorage.setItem('openai_api_key', tempApiKey);
-      setApiKey(tempApiKey);
-      setApiKeyDialogOpen(false);
-      toast.success("API key saved successfully");
-      // Try generating hooks after saving key
-      handleGenerateHooks();
     }
   };
 
@@ -175,50 +142,6 @@ const HookInput = ({ value, onChange, step, totalSteps, selectedProduct }: HookI
           Keep it short and engaging. This will overlay on your video.
         </p>
       </div>
-
-      {/* API Key Dialog */}
-      <Dialog open={apiKeyDialogOpen} onOpenChange={setApiKeyDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>OpenAI API Key Required</DialogTitle>
-            <DialogDescription>
-              Enter your OpenAI API key to generate AI-powered hooks. Your key will be stored locally.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div>
-              <Label htmlFor="apiKey">API Key</Label>
-              <Input
-                id="apiKey"
-                type="password"
-                value={tempApiKey}
-                onChange={(e) => setTempApiKey(e.target.value)}
-                placeholder="sk-..."
-              />
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Get your API key from{" "}
-              <a
-                href="https://platform.openai.com/api-keys"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary underline"
-              >
-                OpenAI Platform
-              </a>
-            </p>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setApiKeyDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSaveApiKey}>
-              <Key className="h-4 w-4 mr-2" />
-              Save API Key
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

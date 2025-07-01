@@ -12,7 +12,7 @@ import {
   DialogHeader, 
   DialogTitle 
 } from "@/components/ui/dialog";
-import { Plus, Trash2, Edit, Package } from "lucide-react";
+import { Plus, Trash2, Edit, Package, X, Hash } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -38,8 +38,10 @@ const Products = () => {
   const [shortDescription, setShortDescription] = useState("");
   const [longDescription, setLongDescription] = useState("");
   const [targetAudience, setTargetAudience] = useState("");
-  const [exampleHooks, setExampleHooks] = useState("");
-  const [exampleHashtags, setExampleHashtags] = useState("");
+  const [exampleHooks, setExampleHooks] = useState<string[]>([]);
+  const [currentHook, setCurrentHook] = useState("");
+  const [exampleHashtags, setExampleHashtags] = useState<string[]>([]);
+  const [currentHashtag, setCurrentHashtag] = useState("");
 
   useEffect(() => {
     fetchProducts();
@@ -63,6 +65,44 @@ const Products = () => {
     }
   };
 
+  const handleAddHook = () => {
+    if (currentHook.trim()) {
+      setExampleHooks([...exampleHooks, currentHook.trim()]);
+      setCurrentHook("");
+    }
+  };
+
+  const handleRemoveHook = (index: number) => {
+    setExampleHooks(exampleHooks.filter((_, i) => i !== index));
+  };
+
+  const handleAddHashtag = () => {
+    const hashtag = currentHashtag.trim();
+    if (hashtag) {
+      // Ensure hashtag starts with #
+      const formattedHashtag = hashtag.startsWith('#') ? hashtag : `#${hashtag}`;
+      if (!exampleHashtags.includes(formattedHashtag)) {
+        setExampleHashtags([...exampleHashtags, formattedHashtag]);
+      }
+      setCurrentHashtag("");
+    }
+  };
+
+  const handleRemoveHashtag = (index: number) => {
+    setExampleHashtags(exampleHashtags.filter((_, i) => i !== index));
+  };
+
+  const handleKeyPress = (e: any, action: 'hook' | 'hashtag') => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (action === 'hook') {
+        handleAddHook();
+      } else {
+        handleAddHashtag();
+      }
+    }
+  };
+
   const handleSubmit = async () => {
     if (!appName || !shortDescription) {
       toast.error('App name and short description are required');
@@ -75,8 +115,8 @@ const Products = () => {
         short_description: shortDescription,
         long_description: longDescription || null,
         target_audience: targetAudience || null,
-        example_hooks: exampleHooks ? JSON.stringify(exampleHooks.split('\n').filter(h => h.trim())) : null,
-        example_hashtags: exampleHashtags ? JSON.stringify(exampleHashtags.split('\n').filter(h => h.trim())) : null,
+        example_hooks: exampleHooks.length > 0 ? JSON.stringify(exampleHooks) : null,
+        example_hashtags: exampleHashtags.length > 0 ? JSON.stringify(exampleHashtags) : null,
       };
 
       if (editingProduct) {
@@ -111,8 +151,10 @@ const Products = () => {
     setShortDescription(product.short_description);
     setLongDescription(product.long_description || "");
     setTargetAudience(product.target_audience || "");
-    setExampleHooks(product.example_hooks ? JSON.parse(product.example_hooks).join('\n') : "");
-    setExampleHashtags(product.example_hashtags ? JSON.parse(product.example_hashtags).join('\n') : "");
+    setExampleHooks(product.example_hooks ? JSON.parse(product.example_hooks) : []);
+    setExampleHashtags(product.example_hashtags ? JSON.parse(product.example_hashtags) : []);
+    setCurrentHook("");
+    setCurrentHashtag("");
     setDialogOpen(true);
   };
 
@@ -139,8 +181,10 @@ const Products = () => {
     setShortDescription("");
     setLongDescription("");
     setTargetAudience("");
-    setExampleHooks("");
-    setExampleHashtags("");
+    setExampleHooks([]);
+    setCurrentHook("");
+    setExampleHashtags([]);
+    setCurrentHashtag("");
     setEditingProduct(null);
   };
 
@@ -214,9 +258,18 @@ const Products = () => {
               {product.example_hashtags && (
                 <div>
                   <span className="text-xs font-medium">Hashtags:</span>
-                  <p className="text-xs text-muted-foreground">
-                    {JSON.parse(product.example_hashtags).join(' ')}
-                  </p>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {JSON.parse(product.example_hashtags).slice(0, 3).map((tag: string, idx: number) => (
+                      <span key={idx} className="text-xs bg-secondary px-2 py-0.5 rounded-full">
+                        {tag}
+                      </span>
+                    ))}
+                    {JSON.parse(product.example_hashtags).length > 3 && (
+                      <span className="text-xs text-muted-foreground">
+                        +{JSON.parse(product.example_hashtags).length - 3} more
+                      </span>
+                    )}
+                  </div>
                 </div>
               )}
             </Card>
@@ -282,31 +335,71 @@ const Products = () => {
             </div>
 
             <div>
-              <Label htmlFor="exampleHooks">
-                Example Hooks Used by Competitors
-                <span className="text-xs text-muted-foreground ml-2">(one per line)</span>
-              </Label>
-              <Textarea
-                id="exampleHooks"
-                value={exampleHooks}
-                onChange={(e) => setExampleHooks(e.target.value)}
-                placeholder="POV: You finally found the perfect workout app&#10;This changed my fitness journey forever&#10;Stop wasting time at the gym..."
-                rows={4}
-              />
+              <Label>Example Hooks Used by Competitors</Label>
+              <div className="flex gap-2 mb-2">
+                <Input
+                  value={currentHook}
+                  onChange={(e) => setCurrentHook(e.target.value)}
+                  onKeyPress={(e) => handleKeyPress(e, 'hook')}
+                  placeholder="Enter a hook and press Enter"
+                />
+                <Button type="button" onClick={handleAddHook} size="sm">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              {exampleHooks.length > 0 && (
+                <div className="space-y-2 max-h-40 overflow-y-auto border rounded-lg p-2">
+                  {exampleHooks.map((hook, index) => (
+                    <div key={index} className="flex items-start justify-between gap-2 p-2 bg-secondary/50 rounded">
+                      <span className="text-sm flex-1">{hook}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveHook(index)}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div>
-              <Label htmlFor="exampleHashtags">
-                Example Hashtags Used by Competitors
-                <span className="text-xs text-muted-foreground ml-2">(one per line)</span>
-              </Label>
-              <Textarea
-                id="exampleHashtags"
-                value={exampleHashtags}
-                onChange={(e) => setExampleHashtags(e.target.value)}
-                placeholder="#fitness&#10;#workout&#10;#healthylifestyle"
-                rows={3}
-              />
+              <Label>Example Hashtags Used by Competitors</Label>
+              <div className="flex gap-2 mb-2">
+                <Input
+                  value={currentHashtag}
+                  onChange={(e) => setCurrentHashtag(e.target.value)}
+                  onKeyPress={(e) => handleKeyPress(e, 'hashtag')}
+                  placeholder="Enter a hashtag and press Enter"
+                />
+                <Button type="button" onClick={handleAddHashtag} size="sm">
+                  <Hash className="h-4 w-4" />
+                </Button>
+              </div>
+              {exampleHashtags.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {exampleHashtags.map((hashtag, index) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center gap-1 px-3 py-1 bg-primary/10 text-primary rounded-full text-sm"
+                    >
+                      {hashtag}
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-4 w-4 p-0 hover:bg-transparent"
+                        onClick={() => handleRemoveHashtag(index)}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 

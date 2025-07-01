@@ -62,13 +62,19 @@ const Navbar = () => {
       </div>
       
       <nav className="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar">
-        <NavItem icon={<Home size={18} />} label="AI UGC Avatars" to="/dashboard?tab=aiugc" active={currentTab === "aiugc"} />
-        <NavItem icon={<Film size={18} />} label="My Videos" to="/dashboard?tab=videos" active={currentTab === "videos"} />
+        <NavItem icon={<Home size={18} />} label="Create UGC Video" to="/dashboard?tab=aiugc" active={currentTab === "aiugc"} />
         <NavItem icon={<Grid size={18} />} label="Carousels" to="/dashboard?tab=carousels" active={currentTab === "carousels"} />
-        <NavItem icon={<Image size={18} />} label="Gifs" to="/dashboard?tab=gifs" active={currentTab === "gifs"} />
+        <NavItem icon={<Image size={18} />} label="Meme Generator" to="/dashboard?tab=gifs" active={currentTab === "gifs"} />
         <NavItem icon={<Package size={18} />} label="Products" to="/dashboard?tab=products" active={currentTab === "products"} />
         <NavItem icon={<Layers size={18} />} label="Memes" disabled={true} />
         <NavItem icon={<Calendar size={18} />} label="Schedule" disabled={true} />
+        
+        {/* Separator */}
+        <div className="my-4 border-t border-border" />
+        
+        {/* My Videos in a separate section */}
+        <div className="text-xs font-medium text-muted-foreground px-4 pb-2 uppercase tracking-wider">Your Content</div>
+        <NavItem icon={<Film size={18} />} label="My Videos" to="/dashboard?tab=videos" active={currentTab === "videos"} />
       </nav>
       
       <div className="border-t border-border p-4 space-y-1">

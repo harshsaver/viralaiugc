@@ -160,11 +160,6 @@ const ContentGenerator = () => {
       toast.error("Please select an AI avatar template");
       return;
     }
-
-    if (selectedDemoType !== "none" && !demoUrl) {
-      toast.error("Please upload or select a video first");
-      return;
-    }
     
     setIsGenerating(true);
     saveGeneratedVideo();
