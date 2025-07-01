@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Sparkles, Wand2, Music, CreditCard, ExternalLink, Twitter, ArrowRight } from "lucide-react";
+import { Sparkles, Wand2, Music, CreditCard, ExternalLink, Twitter, ArrowRight, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import HookInput from "./HookInput";
 import AvatarGrid from "./AvatarGrid";
@@ -35,6 +35,8 @@ interface Demo {
   demo_link: string;
 }
 
+type DemoType = "none" | "upload" | "existing";
+
 const ContentGenerator = () => {
   const [hook, setHook] = useState("");
   const [selectedAvatar, setSelectedAvatar] = useState<number | null>(null);
@@ -58,6 +60,7 @@ const ContentGenerator = () => {
   const [customSoundFile, setCustomSoundFile] = useState<File | null>(null);
   const [customSoundUrl, setCustomSoundUrl] = useState<string | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [demoUploaderOpen, setDemoUploaderOpen] = useState(false);
   
   const navigate = useNavigate();
   const { user, profile } = useAuth();
@@ -229,6 +232,18 @@ const ContentGenerator = () => {
     setDemoFile(null);
     setDemoUploaderOpen(false);
     toast.success("Demo video uploaded successfully!");
+  };
+
+  const handleSelectTemplate = (template: Template) => {
+    setSelectedTemplate(template);
+  };
+
+  const handleSelectDemo = (demoId: number | null) => {
+    setSelectedDemo(demoId);
+  };
+
+  const handleAddDemo = () => {
+    setIsUploadingDemo(true);
   };
 
   const handleGoToVideos = () => {
