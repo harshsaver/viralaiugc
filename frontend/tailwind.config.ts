@@ -1,7 +1,6 @@
-
 import type { Config } from "tailwindcss";
 
-export default {
+const config: Config = {
 	darkMode: ["class"],
 	content: [
 		"./pages/**/*.{ts,tsx}",
@@ -79,20 +78,39 @@ export default {
 						height: '0'
 					}
 				},
-        shimmer: {
-          '0%': { backgroundPosition: '-40rem 0' },
-          '100%': { backgroundPosition: '40rem 0' }
-        }
+				'spin-slow': {
+					from: { transform: 'rotate(0deg)' },
+					to: { transform: 'rotate(360deg)' }
+				},
+				shimmer: {
+					'0%': { backgroundPosition: '-40rem 0' },
+					'100%': { backgroundPosition: '40rem 0' }
+				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
-        shimmer: 'shimmer 2s infinite linear'
+				'spin-slow': 'spin-slow 8s linear infinite',
+				shimmer: 'shimmer 2s infinite linear'
+			},
+			animationDelay: {
+				'2000': '2s',
 			},
 			backgroundImage: {
 				'shimmer': 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.1) 20%, rgba(255,255,255,0.2) 60%, rgba(255,255,255,0) 100%)'
 			}
 		}
 	},
-	plugins: [require("tailwindcss-animate")],
+	plugins: [
+		require("tailwindcss-animate"),
+		({ addUtilities }: any) => {
+			addUtilities({
+				'.animation-delay-2000': {
+					'animation-delay': '2s',
+				},
+			});
+		},
+	],
 } satisfies Config;
+
+export default config;

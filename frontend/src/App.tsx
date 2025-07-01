@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Landing from "./pages/Landing";
+import LandingWaitlist from "./pages/LandingWaitlist";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
 import { MobileWarningModal } from "./components/MobileWarningModal";
@@ -35,11 +36,8 @@ const App = () => {
       <TooltipProvider>
         <BrowserRouter>
           <Routes>
-            <Route path="/landing" element={<Landing />} />
-            <Route
-              path="/"
-              element={<Navigate to="/dashboard" replace />}
-            />
+            <Route path="/" element={<LandingWaitlist />} />
+            <Route path="/old-landing" element={<Landing />} />
             <Route
               path="/dashboard"
               element={<Dashboard />}
