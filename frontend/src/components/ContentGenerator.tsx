@@ -108,9 +108,12 @@ const ContentGenerator = () => {
       return;
     }
 
+    // HARDCODED USER ID - Using your manually created Supabase user
+    const HARDCODED_USER_ID = "e7f0ed80-850e-438b-90f8-0d2d8d995939";
+
     try {
       const remotionData = {
-        user_id: null, // No user auth needed
+        user_id: HARDCODED_USER_ID,
         text_alignment: textPosition,
         video_alignment: selectedDemoType !== "none" ? selectedLayout : null,
         sound: selectedSound ? selectedSound.sound_link : customSoundUrl,
@@ -123,7 +126,7 @@ const ContentGenerator = () => {
       const { data, error } = await supabase
         .from('generated_videos')
         .insert({
-          user_id: crypto.randomUUID(), // Generate a random UUID for tracking
+          user_id: HARDCODED_USER_ID, // Use hardcoded user ID
           video_type: 'aiugc',
           text_alignment: textPosition,
           video_alignment: selectedDemoType !== "none" ? selectedLayout : null,
