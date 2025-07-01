@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { Link } from "react-router-dom";
 
 const LandingWaitlist = () => {
   const [email, setEmail] = useState("");
@@ -34,88 +33,106 @@ const LandingWaitlist = () => {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Background Images */}
+    <div className="min-h-screen relative overflow-hidden bg-black">
+      {/* Background Images with Green Overlay */}
       <div className="absolute inset-0 z-0">
         <img 
           src="/bg1.png" 
           alt="Background" 
-          className="hidden md:block w-full h-full object-cover"
+          className="hidden md:block w-full h-full object-cover opacity-80"
         />
         <img 
           src="/bg2.png" 
           alt="Background" 
-          className="md:hidden w-full h-full object-cover"
+          className="md:hidden w-full h-full object-cover opacity-80"
         />
-        {/* Overlay for better text readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-green-900/30 via-green-800/20 to-green-900/40" />
+        {/* Green gradient overlay to match the autumn theme but in green */}
+        <div className="absolute inset-0 bg-gradient-to-b from-emerald-900/70 via-green-800/60 to-emerald-950/80" />
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 min-h-screen flex items-center justify-center px-4">
-        <div className="max-w-md w-full">
-          {/* Anime-styled card with glassmorphism */}
-          <div className="bg-white/90 backdrop-blur-md rounded-3xl shadow-2xl p-8 md:p-10 border-4 border-green-400/50 transform hover:scale-105 transition-transform duration-300">
-            {/* Title with anime-style font */}
-            <h1 className="text-4xl md:text-5xl font-black text-center mb-4 text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-400 drop-shadow-lg">
-              ReelPost AI
-            </h1>
-            
-            {/* Playful subtitle */}
-            <p className="text-center text-lg md:text-xl font-medium text-gray-700 mb-8 leading-relaxed">
-              Create viral TikTok content with AI magic! ✨🎬
-            </p>
-
-            {/* Waitlist form */}
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="relative">
-                <Input
-                  type="email"
-                  placeholder="your@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full h-12 px-4 text-lg border-2 border-green-300 focus:border-green-500 rounded-full bg-white/80 backdrop-blur-sm placeholder:text-gray-400 transition-all duration-300 focus:shadow-lg focus:shadow-green-200/50"
-                  disabled={isSubmitting}
-                />
-              </div>
-              
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full h-12 text-lg font-bold bg-gradient-to-r from-green-500 to-emerald-400 hover:from-green-600 hover:to-emerald-500 text-white rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:hover:translate-y-0"
-              >
-                {isSubmitting ? (
-                  <span className="flex items-center justify-center">
-                    <span className="animate-spin mr-2">🌟</span>
-                    Joining...
-                  </span>
-                ) : (
-                  "Join the Waitlist 🚀"
-                )}
-              </Button>
-            </form>
-
-            {/* Playful footer text */}
-            <p className="text-center text-sm text-gray-600 mt-6">
-              Be the first to create viral content! 🎭
-            </p>
+      {/* UI Wireframe Elements (decorative) */}
+      <div className="absolute inset-0 z-10 overflow-hidden pointer-events-none opacity-50">
+        {/* Left side wireframes */}
+        <div className="absolute left-10 top-20 w-64 h-96 border border-green-400/30 rounded-lg transform -rotate-6 animate-float" />
+        <div className="absolute left-20 bottom-32 w-48 h-64 border border-green-400/30 rounded-lg transform rotate-3">
+          <div className="m-4 space-y-2">
+            <div className="h-8 bg-green-400/20 rounded" />
+            <div className="h-8 bg-green-400/20 rounded" />
           </div>
-
-          {/* Floating anime elements */}
-          <div className="absolute -top-10 -left-10 text-6xl animate-bounce">🌸</div>
-          <div className="absolute -bottom-10 -right-10 text-6xl animate-pulse">🎋</div>
-          <div className="absolute top-1/2 -left-20 text-4xl animate-spin-slow">⭐</div>
-          <div className="absolute top-1/2 -right-20 text-4xl animate-spin-slow animation-delay-2000">✨</div>
         </div>
+        
+        {/* Right side wireframes */}
+        <div className="absolute right-16 top-16 w-56 h-80 border border-green-400/30 rounded-lg transform rotate-6 animate-float" style={{ animationDelay: '3s' }}>
+          <div className="m-4">
+            <div className="w-12 h-12 bg-green-400/20 rounded-full mx-auto mb-4" />
+            <div className="h-6 bg-green-400/20 rounded mb-2" />
+            <div className="h-6 bg-green-400/20 rounded" />
+          </div>
+        </div>
+        <div className="absolute right-32 bottom-20 w-48 h-32 border border-green-400/30 rounded-lg transform -rotate-12" />
+        
+        {/* Floating UI elements */}
+        <div className="absolute left-1/4 top-1/3 w-32 h-20 border border-green-400/30 rounded" />
+        <div className="absolute right-1/3 top-1/4 w-40 h-24 border border-green-400/30 rounded transform rotate-45" />
+        <div className="absolute left-1/3 bottom-1/4 w-36 h-28 border border-green-400/30 rounded-lg transform -rotate-12" />
+        <div className="absolute right-1/4 bottom-1/3 w-44 h-32 border border-green-400/30 rounded-lg transform rotate-6" />
       </div>
 
-      {/* Dev/Test link to dashboard - can be removed in production */}
-      <Link 
-        to="/dashboard" 
-        className="absolute bottom-4 right-4 text-xs text-white/60 hover:text-white/80 transition-colors z-20"
-      >
-        Skip to Dashboard →
-      </Link>
+      {/* Main Content */}
+      <div className="relative z-20 min-h-screen flex flex-col items-center justify-center px-4">
+        {/* Small Login text in top right */}
+        <a 
+          href="/dashboard" 
+          className="absolute top-8 right-8 text-sm text-green-300/50 hover:text-green-300/70 transition-colors font-medium"
+          style={{ letterSpacing: '0.05em' }}
+        >
+          Login
+        </a>
+
+        {/* Logo/Title */}
+        <h1 className="text-7xl md:text-9xl font-bold text-white mb-10 tracking-tight text-shadow-lg" 
+            style={{ fontWeight: 700, letterSpacing: '-0.02em' }}>
+          ReelPost
+        </h1>
+        
+        {/* Tagline */}
+        <p className="text-xl md:text-2xl text-green-100/90 mb-14 text-center max-w-2xl font-light tracking-wide">
+          Create viral TikTok content at the speed of thought
+        </p>
+
+        {/* Email Form */}
+        <form onSubmit={handleSubmit} className="w-full max-w-lg">
+          <div className="flex flex-col md:flex-row gap-4">
+            <Input
+              type="email"
+              placeholder="Enter your email for early access"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="flex-1 h-14 px-6 text-base bg-white/10 backdrop-blur-sm border-green-400/40 text-white placeholder:text-green-200/70 rounded-full focus:bg-white/15 focus:border-green-400/60 transition-all duration-300"
+              disabled={isSubmitting}
+            />
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="h-14 px-10 text-base font-semibold bg-green-600 hover:bg-green-700 text-white rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 disabled:opacity-50 transform hover:scale-105"
+            >
+              {isSubmitting ? (
+                <span className="flex items-center">
+                  <span className="animate-spin mr-2">⏳</span>
+                  Joining...
+                </span>
+              ) : (
+                "Join Waitlist"
+              )}
+            </Button>
+          </div>
+        </form>
+
+        {/* Bottom text */}
+        <p className="text-sm text-green-200/70 mt-8 text-center max-w-lg font-light">
+          Be among the first to create viral content at the speed of thought
+        </p>
+      </div>
     </div>
   );
 };
