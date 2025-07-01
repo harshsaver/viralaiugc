@@ -8,6 +8,7 @@ import AudioSelector from "./AudioSelector";
 import AuthDialog from "./AuthDialog";
 import DemoGrid from "./DemoGrid";
 import DemoUploader from "./DemoUploader";
+import ProductSelector from "./ProductSelector";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -49,10 +50,18 @@ const ContentGenerator = () => {
   const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
   const [textPosition, setTextPosition] = useState<"top" | "center" | "bottom">("bottom");
   const [videoLayout, setVideoLayout] = useState<"serial" | "side" | "top">("serial");
+  const [selectedDemoType, setSelectedDemoType] = useState<DemoType | null>(null);
+  const [demoFile, setDemoFile] = useState<File | null>(null);
+  const [demoUrl, setDemoUrl] = useState<string | null>(null);
+  const [savedDemoId, setSavedDemoId] = useState<number | null>(null);
+  const [selectedLayout, setSelectedLayout] = useState<"side" | "top" | "serial">("side");
+  const [customSoundFile, setCustomSoundFile] = useState<File | null>(null);
+  const [customSoundUrl, setCustomSoundUrl] = useState<string | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
   
   const navigate = useNavigate();
   const { user, profile } = useAuth();
-  const totalSteps = 3;
+  const totalSteps = selectedDemoType !== "none" ? 5 : 4;
 
   useEffect(() => {
     const fetchDemoLink = async () => {
@@ -91,23 +100,18 @@ const ContentGenerator = () => {
   };
 
   const saveGeneratedVideo = async () => {
-    if (!user) {
-      toast.error("You must be logged in to generate videos");
-      return;
-    }
-
     if (!selectedTemplate) {
-      toast.error("Please select an avatar template");
+      toast.error("Please select an AI avatar template");
       return;
     }
 
     try {
       const remotionData = {
-        user_id: user.id,
+        user_id: null, // No user auth needed
         text_alignment: textPosition,
-        video_alignment: selectedDemo ? videoLayout : null,
-        sound: selectedSound ? selectedSound.sound_link : null,
-        demo: selectedDemoLink,
+        video_alignment: selectedDemoType !== "none" ? selectedLayout : null,
+        sound: selectedSound ? selectedSound.sound_link : customSoundUrl,
+        demo: demoUrl,
         template: selectedTemplate.video_link,
         videotype: "aiugc",
         caption: hook
@@ -116,15 +120,16 @@ const ContentGenerator = () => {
       const { data, error } = await supabase
         .from('generated_videos')
         .insert({
-          user_id: user.id,
+          user_id: crypto.randomUUID(), // Generate a random UUID for tracking
           video_type: 'aiugc',
           text_alignment: textPosition,
-          video_alignment: selectedDemo ? videoLayout : null,
+          video_alignment: selectedDemoType !== "none" ? selectedLayout : null,
           sound_id: selectedSound ? selectedSound.id : null,
+          demo_id: savedDemoId,
           template_id: selectedTemplate ? Number(selectedTemplate.id) : null,
-          demo_id: selectedDemo,
           remotion: remotionData,
-          caption: hook
+          caption: hook,
+          status: 'pending'
         })
         .select();
 
@@ -143,23 +148,18 @@ const ContentGenerator = () => {
   };
 
   const handleGenerate = () => {
-    if (!user) {
-      setAuthDialogOpen(true);
-      return;
-    }
-    
     if (!hook) {
       toast.error("Please enter a hook first");
       return;
     }
     
     if (selectedAvatar === null) {
-      toast.error("Please select an avatar");
+      toast.error("Please select an AI avatar template");
       return;
     }
-    
-    if (profile && profile.plan === 'free' && (profile.credits <= 0)) {
-      setUpgradeDialogOpen(true);
+
+    if (selectedDemoType !== "none" && !demoUrl) {
+      toast.error("Please upload or select a video first");
       return;
     }
     
@@ -167,20 +167,42 @@ const ContentGenerator = () => {
     saveGeneratedVideo();
   };
 
-  const handleSelectTemplate = (template: Template) => {
-    setSelectedTemplate(template);
+  const handleAudioUpload = async (file: File) => {
+    try {
+      const fileName = `${crypto.randomUUID()}.${file.name.split('.').pop()}`;
+      const filePath = `user-uploads/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('sound')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data: publicUrlData } = supabase.storage
+        .from('sound')
+        .getPublicUrl(filePath);
+
+      setCustomSoundFile(file);
+      setCustomSoundUrl(publicUrlData.publicUrl);
+      setSelectedSound(null);
+      
+      toast.success("Custom audio uploaded successfully!");
+    } catch (error: any) {
+      console.error('Error uploading audio:', error);
+      toast.error(error.message || 'Failed to upload audio');
+    }
   };
 
   const handleOpenAudioSelector = () => {
-    if (!user) {
-      setAuthDialogOpen(true);
-      return;
-    }
     setAudioSelectorOpen(true);
   };
 
   const handleSelectSound = (sound: Sound | null) => {
     setSelectedSound(sound);
+    setCustomSoundFile(null);
+    setCustomSoundUrl(null);
     if (sound) {
       toast.success(`Selected audio: ${sound.name}`);
     } else {
@@ -188,23 +210,25 @@ const ContentGenerator = () => {
     }
   };
 
-  const handleAddDemo = () => {
-    if (!user) {
-      setAuthDialogOpen(true);
-      return;
+  const handleSelectDemoType = (type: DemoType) => {
+    setSelectedDemoType(type);
+    if (type === "none") {
+      setDemoFile(null);
+      setDemoUrl(null);
+      setSavedDemoId(null);
     }
-    setIsUploadingDemo(true);
   };
 
-  const handleSelectDemo = (demoId: number | null) => {
-    setSelectedDemo(demoId);
+  const handleOpenDemoUploader = () => {
+    setDemoUploaderOpen(true);
   };
 
-  const handleDemoUploadSuccess = (demoId: number) => {
-    setIsUploadingDemo(false);
-    setSelectedDemo(demoId);
-    const dummyEvent = new Event('demoUploaded');
-    window.dispatchEvent(dummyEvent);
+  const handleDemoUploaded = (url: string, demoId: number) => {
+    setDemoUrl(url);
+    setSavedDemoId(demoId);
+    setDemoFile(null);
+    setDemoUploaderOpen(false);
+    toast.success("Demo video uploaded successfully!");
   };
 
   const handleGoToVideos = () => {
@@ -229,11 +253,17 @@ const ContentGenerator = () => {
           <h1 className="text-3xl font-semibold mb-6">Create UGC Ads</h1>
           
           <div className="space-y-8">
+            <ProductSelector
+              selectedProductId={selectedProduct?.id || null}
+              onSelectProduct={setSelectedProduct}
+            />
+            
             <HookInput 
               value={hook} 
               onChange={setHook} 
               step={1} 
-              totalSteps={totalSteps} 
+              totalSteps={totalSteps}
+              selectedProduct={selectedProduct}
             />
             
             <AvatarGrid 
@@ -446,7 +476,7 @@ const ContentGenerator = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="w-full max-w-md">
             <DemoUploader
-              onSuccess={handleDemoUploadSuccess}
+              onSuccess={handleDemoUploaded}
               onCancel={() => setIsUploadingDemo(false)}
             />
           </div>

@@ -1,16 +1,16 @@
-# Viral AI UGC Setup Documentation
+# ReelPost Setup Documentation
 
 GitHub link: https://github.com/rish9600/viralaiugc
 
 Assets link: https://drive.google.com/drive/folders/1UsaV1nXoU672Ung-IEzENOaUMyW4wRR3?usp=drive_link
 
-Viral AI UGC is an AI UGC content tool for TikTok. Frontend and DB are completely vibe-coded with Lovable.
+ReelPost is an AI UGC content tool for TikTok. Frontend and DB are completely vibe-coded with Lovable.
  The tech stack includes Vite (React) for the frontend, Supabase for the database, Vercel for hosting, and a Node.js server that runs locally to render videos at no cost. You can use everything on the free tier of each service. T
 he entire project was built in just 48 hours spread across one week. Feel free to use it, and don't hesitate to [reach out](https://x.com/rushabtated4) if you encounter any issues.
 
 ## Overview
 
-This documentation provides step-by-step instructions for self-hosting the Viral AI UGC platform. The setup process consists of four main components:
+This documentation provides step-by-step instructions for self-hosting the ReelPost platform. The setup process consists of four main components:
 
 1. Supabase (Database)
 2. Vercel (Frontend)
@@ -309,7 +309,7 @@ Image is clicable and redirects you to video documentation of the project: https
     
     - Click "Run" to execute the query and set up your database tables, storage and RLS policies
 4. **Retrieve API credentials**
-    - Navigate to the "Home" tab in the Supabase dashboard or “Data API” from the project settings
+    - Navigate to the "Home" tab in the Supabase dashboard or "Data API" from the project settings
     - Copy your Supabase URL, Anon Key and Service Role Key (you'll need these for subsequent steps)
     - Copy Callback URL from Authentication > Singin/up >Google (you'll need these for subsequent steps)
 5. **Import sample data**
@@ -319,7 +319,7 @@ Image is clicable and redirects you to video documentation of the project: https
     - Repeat the process for the "templates" table using the [templates CSV file](https://drive.google.com/file/d/1xpugIgsV5pD0fj7XesAoJE1ufKndudeB/view?usp=sharing)
 
 > Note: The imported data connects to pre-configured storage for testing purposes. For production, you'll need to upload your own sounds and templates to your Supabase storage.
-You can configure all the assets by uploading them in Storage “sound” and “templates” respectively and create entries or just upload from frontend
+You can configure all the assets by uploading them in Storage "sound" and "templates" respectively and create entries or just upload from frontend
  Assets link: https://drive.google.com/drive/folders/1UsaV1nXoU672Ung-IEzENOaUMyW4wRR3?usp=drive_link
 > 
 

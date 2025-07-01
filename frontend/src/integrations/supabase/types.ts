@@ -245,7 +245,7 @@ export type Database = {
       template_type: "aiavatar" | "game" | "usergenerated" | "gif"
       text_alignment: "top" | "center" | "bottom"
       video_alignment: "side" | "top" | "serial"
-      video_type: "aiugc" | "meme"
+      video_type: "aiugc" | "meme" | "gif"
     }
     CompositeTypes: {
       [_ in never]: never

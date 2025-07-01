@@ -117,6 +117,9 @@ async function handleVideoGeneration(id, data, outputDir) {
     const videoSource = remotionData.template || null;
     const demoVideoSource = remotionData.demo || null;
     const audioSource = remotionData.sound || null;
+    const backgroundSource = remotionData.background || null;
+    const videotype = remotionData.videotype || data.video_type || "aiugc";
+    const isGifVideo = videotype === "gif" || data.video_type === "meme"; // meme is used for gif videos
     const enableAudio = audioSource !== null;
     const sequentialMode = data.video_alignment === "serial";
     const splitScreen = !sequentialMode && demoVideoSource !== null;
@@ -271,6 +274,8 @@ async function handleVideoGeneration(id, data, outputDir) {
       splitPosition,
       sequentialMode,
       firstVideoDuration,
+      backgroundSource,
+      isGifVideo,
     });
 
     console.log("Generated dynamic component:", componentName);

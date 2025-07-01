@@ -15,6 +15,8 @@ const path = require("path");
  * @param {string} options.splitPosition Layout of the videos (left-right, right-left, top-bottom, bottom-top)
  * @param {boolean} options.sequentialMode Whether to show videos sequentially (one after another) instead of split screen
  * @param {number} options.firstVideoDuration Duration of the first video in seconds when in sequential mode
+ * @param {string} options.backgroundSource Path or URL to the background image (for gif videos)
+ * @param {boolean} options.isGifVideo Whether this is a gif video that needs green screen removal
  * @returns {Object} Information about the generated component
  */
 function generateDynamicVideo(options) {
@@ -31,6 +33,8 @@ function generateDynamicVideo(options) {
     splitPosition,
     sequentialMode = false,
     firstVideoDuration,
+    backgroundSource,
+    isGifVideo = false,
   } = options;
 
   // Create a unique filename based on timestamp
@@ -41,7 +45,7 @@ function generateDynamicVideo(options) {
   // Generate the component code with hardcoded values
   const componentCode = `
 import React from 'react';
-import { AbsoluteFill, Video as RemotionVideo } from 'remotion';
+import { AbsoluteFill, Video as RemotionVideo, Img, useCurrentFrame, useVideoConfig } from 'remotion';
 import { AudioTrack } from './AudioTrack';
 import { SplitScreenVideo } from './SplitScreenVideo';
 import { SequentialVideo } from './SequentialVideo';
@@ -58,12 +62,19 @@ export const ${componentName} = (props) => {
   const audioSource = ${
     audioSource ? `"${audioSource.replace(/"/g, '\\"')}"` : "null"
   };
+  const backgroundSource = ${
+    backgroundSource ? `"${backgroundSource.replace(/"/g, '\\"')}"` : "null"
+  };
   const titleText = "${titleText.replace(/"/g, '\\"')}";
   const textPosition = "${textPosition}";
   const splitScreen = ${splitScreen ? "true" : "false"};
   const splitPosition = "${splitPosition}";
   const sequentialMode = ${sequentialMode ? "true" : "false"};
   const firstVideoDuration = ${firstVideoDuration};
+  const isGifVideo = ${isGifVideo ? "true" : "false"};
+  
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
   
   // Determine text position style
   const getTextPositionStyle = () => {
@@ -166,43 +177,74 @@ export const ${componentName} = (props) => {
     );
   }
 
-  // Default single video/image mode
+  // Default single video/image mode (including gif videos)
   return (
     <AbsoluteFill style={{ backgroundColor: 'black' }}>
-      {/* Video or Image Background */}
-      <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-      <RemotionVideo
-        src={videoSource}
-        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-      />
-        {/* Title with dynamic position */}
-          <div
+      {/* Background image for gif videos */}
+      {isGifVideo && backgroundSource && (
+        <Img
+          src={backgroundSource}
+          style={{
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            zIndex: 1
+          }}
+        />
+      )}
+      
+      {/* Video or Image */}
+      <div style={{ position: 'relative', width: '100%', height: '100%', zIndex: 2 }}>
+        {isGifVideo ? (
+          // For gif videos, render with chromakey
+          <RemotionVideo
+            src={videoSource}
             style={{
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              textAlign: 'center',
-              padding: '0 20px',
-              ...positionStyle
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              // CSS mix-blend-mode for basic green screen effect
+              mixBlendMode: 'screen'
+            }}
+          />
+        ) : (
+          // Regular video
+          <RemotionVideo
+            src={videoSource}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+        )}
+        
+        {/* Title with dynamic position */}
+        <div
+          style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            textAlign: 'center',
+            padding: '0 20px',
+            zIndex: 10,
+            ...positionStyle
+          }}
+        >
+          <h1
+            style={{
+              color: 'white',
+              fontSize: '64px',
+              fontFamily: 'Inter, sans-serif',
+              fontWeight: 700,
+              textShadow:
+                    '-4px -4px 0 #000, 4px -4px 0 #000, -4px 4px 0 #000, 4px 4px 0 #000, 0 -4px 0 #000, 0 4px 0 #000, -4px 0 0 #000, 4px 0 0 #000',
+              margin: 0,
+              lineHeight: 1.2,
+              paddingLeft: "12px",
+              paddingRight: "12px",
             }}
           >
-            <h1
-              style={{
-                color: 'white',
-                fontSize: '64px',
-                fontFamily: 'Inter, sans-serif',
-                fontWeight: 700,
-                textShadow:
-                      '-4px -4px 0 #000, 4px -4px 0 #000, -4px 4px 0 #000, 4px 4px 0 #000, 0 -4px 0 #000, 0 4px 0 #000, -4px 0 0 #000, 4px 0 0 #000',
-                margin: 0,
-                lineHeight: 1.2,
-                paddingLeft: "12px",
-                paddingRight: "12px",
-              }}
-            >
-              {titleText}
-            </h1>
-          </div>
+            {titleText}
+          </h1>
+        </div>
       </div>
       
       {/* Audio handling - always include if available */}

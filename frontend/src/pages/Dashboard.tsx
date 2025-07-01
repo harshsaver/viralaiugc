@@ -1,4 +1,3 @@
-
 import { useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import NavbarWrapper from "@/components/NavbarWrapper";
@@ -6,22 +5,28 @@ import ContentGenerator from "@/components/ContentGenerator";
 import VideoGrid from "@/components/VideoGrid";
 import CarouselMaker from "@/components/carousel/CarouselMaker";
 import GifsDisplay from "@/components/GifsDisplay";
-import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import Videos from "./Videos";
+import Carousels from "./Carousels";
+import Products from "./Products";
 
 const Dashboard = () => {
-  const { user } = useAuth(); 
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const currentTab = searchParams.get("tab") || "aiugc";
+  const tab = searchParams.get("tab") || "aiugc";
+  
+  console.log("Dashboard rendering with tab:", tab);
+  
+  // Validate tab values
+  const validTabs = ["aiugc", "videos", "carousels", "gifs", "products"];
+  const currentTab = validTabs.includes(tab) ? tab : "aiugc";
   
   useEffect(() => {
     // Validate tab parameter
-    const validTabs = ["aiugc", "videos", "carousels", "gifs"];
     if (!validTabs.includes(currentTab)) {
       navigate("/dashboard?tab=aiugc", { replace: true });
     }
-  }, [currentTab, navigate]);
+  }, [currentTab, navigate, validTabs]);
 
   // Memoize the content to prevent unnecessary re-renders
   const content = useMemo(() => {
@@ -29,27 +34,21 @@ const Dashboard = () => {
       case "aiugc":
         return <ContentGenerator />;
       case "videos":
-        return (
-          <div className="max-w-7xl mx-auto p-4 md:p-6">
-            <h1 className="text-2xl md:text-3xl font-bold mb-4 md:mb-6">My Videos</h1>
-            <VideoGrid videoType="aiugc" />
-          </div>
-        );
+        return <Videos />;
       case "carousels":
-        return (
-          <div className="max-w-7xl mx-auto p-4 md:p-6">
-            <h1 className="text-2xl md:text-3xl font-bold mb-4 md:mb-6">TikTok Carousel Maker</h1>
-            <CarouselMaker />
-          </div>
-        );
+        return <Carousels />;
       case "gifs":
         return <GifsDisplay />;
+      case "products":
+        return <Products />;
       default:
-        return <ContentGenerator />;
+        return (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">Page not found</p>
+          </div>
+        );
     }
   }, [currentTab]);
-
-  // Add React Query provider to App.tsx and enable devtools in App.tsx
   
   return (
     <div className="flex h-screen bg-background overflow-hidden">
