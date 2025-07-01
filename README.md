@@ -4,9 +4,7 @@ GitHub link: https://github.com/rish9600/viralaiugc
 
 Assets link: https://drive.google.com/drive/folders/1UsaV1nXoU672Ung-IEzENOaUMyW4wRR3?usp=drive_link
 
-ReelPost is an AI UGC content tool for TikTok. Frontend and DB are completely vibe-coded with Lovable.
- The tech stack includes Vite (React) for the frontend, Supabase for the database, Vercel for hosting, and a Node.js server that runs locally to render videos at no cost. You can use everything on the free tier of each service. T
-he entire project was built in just 48 hours spread across one week. Feel free to use it, and don't hesitate to [reach out](https://x.com/rushabtated4) if you encounter any issues.
+ReelPost is an AI UGC content tool for TikTok. The tech stack includes Vite (React) for the frontend, Supabase for the database, Vercel for hosting, and a Node.js server that runs locally to render videos at no cost. You can use everything on the free tier of each service. The entire project was built in just 48 hours spread across one week. Feel free to use it, and don't hesitate to [reach out](https://x.com/rushabtated4) if you encounter any issues.
 
 ## Overview
 
