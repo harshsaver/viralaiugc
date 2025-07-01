@@ -80,15 +80,6 @@ const LandingWaitlist = () => {
 
       {/* Main Content */}
       <div className="relative z-20 min-h-screen flex flex-col items-center justify-center px-4">
-        {/* Small Login text in top right */}
-        <a 
-          href="/dashboard" 
-          className="absolute top-8 right-8 text-sm text-green-300/50 hover:text-green-300/70 transition-colors font-medium"
-          style={{ letterSpacing: '0.05em' }}
-        >
-          Login
-        </a>
-
         {/* Logo/Title */}
         <h1 className="text-7xl md:text-9xl font-bold text-white mb-10 tracking-tight text-shadow-lg" 
             style={{ fontWeight: 700, letterSpacing: '-0.02em' }}>

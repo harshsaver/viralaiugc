@@ -25,7 +25,10 @@ const queryClient = new QueryClient({
 const MobileWarningWrapper = () => {
   const location = useLocation();
   
-  return <MobileWarningModal />;
+  // Only show mobile warning on dashboard routes, not on landing page
+  const shouldShowMobileWarning = location.pathname.startsWith('/dashboard');
+  
+  return shouldShowMobileWarning ? <MobileWarningModal /> : null;
 };
 
 const App = () => {
