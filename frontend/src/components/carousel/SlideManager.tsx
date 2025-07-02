@@ -47,9 +47,19 @@ const SlideManager = ({
                   backgroundSize: "cover"
                 }}
               >
-                {slide.backgroundType === "grid" && slide.gridImages && (
-                  <div className="grid grid-cols-2 grid-rows-2 h-full">
-                    {Array.from({ length: 4 }).map((_, i) => (
+                {slide.backgroundType.startsWith("grid") && slide.gridImages && (
+                  <div className={`grid h-full ${
+                    slide.backgroundType === "grid" ? "grid-cols-2 grid-rows-2" :
+                    slide.backgroundType === "grid-2x1" ? "grid-cols-2 grid-rows-1" :
+                    slide.backgroundType === "grid-1x2" ? "grid-cols-1 grid-rows-2" :
+                    slide.backgroundType === "grid-3x3" ? "grid-cols-3 grid-rows-3" : ""
+                  }`}>
+                    {Array.from({ length: 
+                      slide.backgroundType === "grid" ? 4 :
+                      slide.backgroundType === "grid-2x1" ? 2 :
+                      slide.backgroundType === "grid-1x2" ? 2 :
+                      slide.backgroundType === "grid-3x3" ? 9 : 4
+                    }).map((_, i) => (
                       <div key={i} className="bg-gray-100 relative">
                         {slide.gridImages?.[i] && (
                           <img

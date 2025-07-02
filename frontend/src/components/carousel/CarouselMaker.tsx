@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { Button } from "@/components/ui/button";
@@ -6,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CarouselEditor from "@/components/carousel/CarouselEditor";
 import CarouselPreview from "@/components/carousel/CarouselPreview";
 import SlideManager from "@/components/carousel/SlideManager";
+import ProductSelector from "@/components/ProductSelector";
 import { SlideData } from "./types";
 import { toast } from "@/hooks/use-toast";
 import html2canvas from "html2canvas";
@@ -22,6 +22,7 @@ const DEFAULT_SLIDE: SlideData = {
 const CarouselMaker = () => {
   const [slides, setSlides] = useState<SlideData[]>([DEFAULT_SLIDE]);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
 
   const currentSlide = slides[currentSlideIndex];
 
@@ -108,16 +109,24 @@ const CarouselMaker = () => {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6">
-      <div className="flex-1">
-        <div className="grid grid-cols-1 gap-6">
-          <div className="bg-white rounded-lg shadow-sm border p-4">
-            <h2 className="text-xl font-semibold mb-4">Edit Slide</h2>
-            <CarouselEditor 
-              slide={currentSlide} 
-              updateSlide={updateSlide}
-              downloadCurrentSlide={downloadCurrentSlide}
-            />
+    <div className="space-y-6">
+      {/* Product Selector */}
+      <ProductSelector
+        selectedProductId={selectedProduct?.id || null}
+        onSelectProduct={setSelectedProduct}
+      />
+      
+      <div className="flex flex-col lg:flex-row gap-6">
+        <div className="flex-1">
+          <div className="grid grid-cols-1 gap-6">
+            <div className="bg-white rounded-lg shadow-sm border p-4">
+              <h2 className="text-xl font-semibold mb-4">Edit Slide</h2>
+              <CarouselEditor 
+                slide={currentSlide} 
+                updateSlide={updateSlide}
+                downloadCurrentSlide={downloadCurrentSlide}
+                selectedProduct={selectedProduct}
+              />
             
             <div className="mt-6">
               <SlideManager
@@ -141,6 +150,7 @@ const CarouselMaker = () => {
             setCurrentSlideIndex={setCurrentSlideIndex}
             downloadAllSlides={() => {}} // This is a placeholder function as we handle the download in CarouselPreview directly
           />
+        </div>
         </div>
       </div>
     </div>

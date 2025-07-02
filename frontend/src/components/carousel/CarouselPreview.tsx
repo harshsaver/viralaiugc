@@ -68,13 +68,30 @@ const CarouselPreview = ({
             slideDiv.style.backgroundImage = `url(${slide.backgroundImage})`;
             slideDiv.style.backgroundSize = "cover";
             slideDiv.style.backgroundPosition = "center";
-          } else if (slide.backgroundType === "grid" && slide.gridImages) {
+          } else if (slide.backgroundType.startsWith("grid") && slide.gridImages) {
             // Create grid layout
             slideDiv.style.display = "grid";
-            slideDiv.style.gridTemplateColumns = "1fr 1fr";
-            slideDiv.style.gridTemplateRows = "1fr 1fr";
             
-            for (let j = 0; j < 4; j++) {
+            let gridSize = 4;
+            if (slide.backgroundType === "grid") {
+              slideDiv.style.gridTemplateColumns = "1fr 1fr";
+              slideDiv.style.gridTemplateRows = "1fr 1fr";
+              gridSize = 4;
+            } else if (slide.backgroundType === "grid-2x1") {
+              slideDiv.style.gridTemplateColumns = "1fr 1fr";
+              slideDiv.style.gridTemplateRows = "1fr";
+              gridSize = 2;
+            } else if (slide.backgroundType === "grid-1x2") {
+              slideDiv.style.gridTemplateColumns = "1fr";
+              slideDiv.style.gridTemplateRows = "1fr 1fr";
+              gridSize = 2;
+            } else if (slide.backgroundType === "grid-3x3") {
+              slideDiv.style.gridTemplateColumns = "1fr 1fr 1fr";
+              slideDiv.style.gridTemplateRows = "1fr 1fr 1fr";
+              gridSize = 9;
+            }
+            
+            for (let j = 0; j < gridSize; j++) {
               const gridCell = document.createElement('div');
               gridCell.style.position = "relative";
               gridCell.style.overflow = "hidden";
@@ -250,6 +267,69 @@ const CarouselPreview = ({
                       />
                     ) : (
                       <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-sm">
+                        No image
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            {/* 2x1 Grid layout */}
+            {currentSlide.backgroundType === "grid-2x1" && currentSlide.gridImages && (
+              <div className="grid grid-cols-2 grid-rows-1 h-full">
+                {Array.from({ length: 2 }).map((_, index) => (
+                  <div key={index} className="relative overflow-hidden">
+                    {currentSlide.gridImages?.[index] ? (
+                      <img 
+                        src={currentSlide.gridImages[index]} 
+                        alt={`Grid image ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-sm">
+                        No image
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            {/* 1x2 Grid layout */}
+            {currentSlide.backgroundType === "grid-1x2" && currentSlide.gridImages && (
+              <div className="grid grid-cols-1 grid-rows-2 h-full">
+                {Array.from({ length: 2 }).map((_, index) => (
+                  <div key={index} className="relative overflow-hidden">
+                    {currentSlide.gridImages?.[index] ? (
+                      <img 
+                        src={currentSlide.gridImages[index]} 
+                        alt={`Grid image ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-sm">
+                        No image
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            {/* 3x3 Grid layout */}
+            {currentSlide.backgroundType === "grid-3x3" && currentSlide.gridImages && (
+              <div className="grid grid-cols-3 grid-rows-3 h-full">
+                {Array.from({ length: 9 }).map((_, index) => (
+                  <div key={index} className="relative overflow-hidden">
+                    {currentSlide.gridImages?.[index] ? (
+                      <img 
+                        src={currentSlide.gridImages[index]} 
+                        alt={`Grid image ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-xs">
                         No image
                       </div>
                     )}

@@ -1,4 +1,3 @@
-
 export type TextPosition = "top" | "center" | "bottom";
 
 export interface TextElement {
@@ -19,7 +18,7 @@ export interface StickerElement {
   height: number;
 }
 
-export type BackgroundType = "color" | "image" | "gradient" | "grid";
+export type BackgroundType = "color" | "image" | "gradient" | "grid" | "grid-2x1" | "grid-1x2" | "grid-3x3";
 
 export interface SlideData {
   id: string;
