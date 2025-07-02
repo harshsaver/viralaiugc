@@ -42,10 +42,7 @@ const GifPreview = ({
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const backgroundImageRef = useRef<HTMLImageElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animationRef = useRef<number>();
+  const loadingTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (isLoading) {
@@ -90,6 +87,7 @@ const GifPreview = ({
   useEffect(() => {
     // Start playback when both video and background are loaded
     if (gifVideoLoaded && (backgroundLoaded || !selectedBackground)) {
+      console.log("Starting video playback after loading");
       setIsLoading(false);
       if (isPlaying && videoRef.current) {
         videoRef.current.play().catch(error => {
@@ -149,107 +147,14 @@ const GifPreview = ({
   };
 
   const handleBackgroundLoad = () => {
+    console.log("Background loaded");
     setBackgroundLoaded(true);
   };
 
-  // Draw frame with green screen removal
-  const drawFrame = () => {
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext('2d');
-    const video = videoRef.current;
-    const backgroundImg = backgroundImageRef.current;
-
-    if (!canvas || !ctx || !video || !gifVideoLoaded) return;
-
-    // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Draw background if available
-    if (selectedBackground && backgroundImg && backgroundLoaded) {
-      ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
-    } else {
-      // Default background
-      ctx.fillStyle = '#000000';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
-
-    // Draw video frame
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    // Apply green screen removal if gif template is selected
-    if (selectedTemplate) {
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const data = imageData.data;
-
-      // Chroma key settings for green screen
-      const keyColor = { r: 0, g: 255, b: 0 }; // Pure green
-      const threshold = 100; // Adjust for sensitivity
-
-      for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
-
-        // Calculate color distance from key color
-        const distance = Math.sqrt(
-          Math.pow(r - keyColor.r, 2) +
-          Math.pow(g - keyColor.g, 2) +
-          Math.pow(b - keyColor.b, 2)
-        );
-
-        // If color is close to green, make it transparent
-        if (distance < threshold) {
-          data[i + 3] = 0; // Set alpha to 0 (transparent)
-        }
-      }
-
-      ctx.putImageData(imageData, 0, 0);
-    }
-
-    // Continue animation
-    if (isPlaying) {
-      animationRef.current = requestAnimationFrame(drawFrame);
-    }
+  const handleVideoLoad = () => {
+    console.log("Video loaded");
+    setGifVideoLoaded(true);
   };
-
-  // Effect to handle canvas updates
-  useEffect(() => {
-    if (canvasRef.current && videoRef.current) {
-      const canvas = canvasRef.current;
-      canvas.width = 270;
-      canvas.height = 480;
-    }
-  }, []);
-
-  // Effect to handle play/pause
-  useEffect(() => {
-    if (gifVideoLoaded && (backgroundLoaded || !selectedBackground)) {
-      if (isPlaying) {
-        videoRef.current?.play();
-        audioRef.current?.play();
-        drawFrame();
-      } else {
-        videoRef.current?.pause();
-        audioRef.current?.pause();
-        if (animationRef.current) {
-          cancelAnimationFrame(animationRef.current);
-        }
-      }
-    }
-  }, [isPlaying, gifVideoLoaded, backgroundLoaded, selectedBackground]);
-
-  // Effect to handle video/background changes
-  useEffect(() => {
-    setGifVideoLoaded(false);
-    setBackgroundLoaded(false);
-    setIsPlaying(true);
-
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, [selectedGif, selectedTemplate, selectedBackground]);
 
   // Get text position styles
   const getTextPositionStyle = () => {
@@ -278,33 +183,33 @@ const GifPreview = ({
             </div>
           )}
           
-          {/* Hidden video element */}
-          <video
-            ref={videoRef}
-            src={selectedTemplate?.video_link}
-            className="hidden"
-            loop
-            muted
-            playsInline
-            onLoadedData={() => setGifVideoLoaded(true)}
-          />
-          
-          {/* Hidden background image */}
-          {selectedBackground && (
+          {/* Background layer */}
+          {selectedBackground ? (
             <img
-              ref={backgroundImageRef}
               src={selectedBackground.image_link}
-              className="hidden"
+              className="absolute inset-0 w-full h-full object-cover"
               onLoad={handleBackgroundLoad}
               alt="Background"
+              crossOrigin="anonymous"
+            />
+          ) : (
+            <div className="absolute inset-0 bg-black" />
+          )}
+          
+          {/* Video layer with mix-blend-mode for simple compositing */}
+          {selectedTemplate && (
+            <video
+              ref={videoRef}
+              src={selectedTemplate.video_link}
+              className="absolute inset-0 w-full h-full object-cover"
+              style={{ mixBlendMode: 'screen' }}
+              loop
+              muted
+              playsInline
+              onLoadedData={handleVideoLoad}
+              crossOrigin="anonymous"
             />
           )}
-
-          {/* Canvas for rendering */}
-          <canvas
-            ref={canvasRef}
-            className="absolute inset-0 w-full h-full object-cover"
-          />
           
           {/* No content placeholder */}
           {!selectedTemplate && selectedGif === null && (
@@ -394,15 +299,12 @@ const GifPreview = ({
           </Button>
         </div>
         
-        {/* Green screen info */}
-        {selectedTemplate && (
-          <div className="text-center">
-            <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
-              <Sparkles className="h-3 w-3" />
-              Green screen removal active
-            </p>
-          </div>
-        )}
+        {/* Preview notice */}
+        <div className="text-center">
+          <p className="text-xs text-muted-foreground">
+            Preview only - Final render will include green screen removal
+          </p>
+        </div>
       </div>
     </div>
   );
