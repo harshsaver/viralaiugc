@@ -24,6 +24,8 @@ interface Product {
   target_audience: string | null;
   example_hooks: string | null;
   example_hashtags: string | null;
+  value_proposition: string | null;
+  social_strategy: string | null;
   created_at: string;
 }
 
@@ -42,6 +44,8 @@ const Products = () => {
   const [currentHook, setCurrentHook] = useState("");
   const [exampleHashtags, setExampleHashtags] = useState<string[]>([]);
   const [currentHashtag, setCurrentHashtag] = useState("");
+  const [valueProposition, setValueProposition] = useState("");
+  const [socialStrategy, setSocialStrategy] = useState("");
 
   useEffect(() => {
     fetchProducts();
@@ -117,6 +121,8 @@ const Products = () => {
         target_audience: targetAudience || null,
         example_hooks: exampleHooks.length > 0 ? JSON.stringify(exampleHooks) : null,
         example_hashtags: exampleHashtags.length > 0 ? JSON.stringify(exampleHashtags) : null,
+        value_proposition: valueProposition || null,
+        social_strategy: socialStrategy || null,
       };
 
       if (editingProduct) {
@@ -155,6 +161,8 @@ const Products = () => {
     setExampleHashtags(product.example_hashtags ? JSON.parse(product.example_hashtags) : []);
     setCurrentHook("");
     setCurrentHashtag("");
+    setValueProposition(product.value_proposition || "");
+    setSocialStrategy(product.social_strategy || "");
     setDialogOpen(true);
   };
 
@@ -186,6 +194,8 @@ const Products = () => {
     setExampleHashtags([]);
     setCurrentHashtag("");
     setEditingProduct(null);
+    setValueProposition("");
+    setSocialStrategy("");
   };
 
   return (
@@ -331,6 +341,28 @@ const Products = () => {
                 value={targetAudience}
                 onChange={(e) => setTargetAudience(e.target.value)}
                 placeholder="e.g., Health-conscious millennials"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="valueProposition">Current Value Proposition of the App</Label>
+              <Textarea
+                id="valueProposition"
+                value={valueProposition}
+                onChange={(e) => setValueProposition(e.target.value)}
+                placeholder="What unique value does your app provide? What problem does it solve?"
+                rows={3}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="socialStrategy">Social Strategy</Label>
+              <Textarea
+                id="socialStrategy"
+                value={socialStrategy}
+                onChange={(e) => setSocialStrategy(e.target.value)}
+                placeholder="Is there anything you want to add about your social strategy? Anything you want to test, learn more about or areas of the market you want to target? Feel free to brain dump"
+                rows={4}
               />
             </div>
 

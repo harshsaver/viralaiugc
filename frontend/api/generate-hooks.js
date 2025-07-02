@@ -47,6 +47,8 @@ App Name: ${product.app_name}
 Description: ${product.short_description}
 ${product.long_description ? `Full Details: ${product.long_description}` : ''}
 ${product.target_audience ? `Target Audience: ${product.target_audience}` : ''}
+${product.value_proposition ? `Value Proposition: ${product.value_proposition}` : ''}
+${product.social_strategy ? `Social Strategy: ${product.social_strategy}` : ''}
 ${product.example_hooks ? `Competitor Hooks for Reference:\n${JSON.parse(product.example_hooks).join('\n')}` : ''}
 ${product.example_hashtags ? `Trending Hashtags: ${JSON.parse(product.example_hashtags).join(' ')}` : ''}
 

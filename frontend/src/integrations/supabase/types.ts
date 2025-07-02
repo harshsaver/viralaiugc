@@ -149,6 +149,48 @@ export type Database = {
           },
         ]
       }
+      products: {
+        Row: {
+          id: number
+          created_at: string
+          app_name: string
+          short_description: string
+          long_description: string | null
+          target_audience: string | null
+          example_hooks: string | null
+          example_hashtags: string | null
+          value_proposition: string | null
+          social_strategy: string | null
+          user_id: string
+        }
+        Insert: {
+          id?: number
+          created_at?: string
+          app_name: string
+          short_description: string
+          long_description?: string | null
+          target_audience?: string | null
+          example_hooks?: string | null
+          example_hashtags?: string | null
+          value_proposition?: string | null
+          social_strategy?: string | null
+          user_id?: string
+        }
+        Update: {
+          id?: number
+          created_at?: string
+          app_name?: string
+          short_description?: string
+          long_description?: string | null
+          target_audience?: string | null
+          example_hooks?: string | null
+          example_hashtags?: string | null
+          value_proposition?: string | null
+          social_strategy?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

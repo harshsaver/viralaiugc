@@ -11,6 +11,8 @@ interface Product {
   target_audience: string | null;
   example_hooks: string | null;
   example_hashtags: string | null;
+  value_proposition: string | null;
+  social_strategy: string | null;
 }
 
 interface ProductSelectorProps {
