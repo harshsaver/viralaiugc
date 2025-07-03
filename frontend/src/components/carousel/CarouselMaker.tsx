@@ -6,9 +6,11 @@ import CarouselEditor from "@/components/carousel/CarouselEditor";
 import CarouselPreview from "@/components/carousel/CarouselPreview";
 import SlideManager from "@/components/carousel/SlideManager";
 import ProductSelector from "@/components/ProductSelector";
-import { SlideData } from "./types";
+import { SlideData, AspectRatio, AspectRatioConfig } from "./types";
 import { toast } from "@/hooks/use-toast";
 import html2canvas from "html2canvas";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 const DEFAULT_SLIDE: SlideData = {
   id: uuidv4(),
@@ -19,12 +21,45 @@ const DEFAULT_SLIDE: SlideData = {
   stickerElements: []
 };
 
+const ASPECT_RATIOS: AspectRatioConfig[] = [
+  {
+    label: "Stories/Reels (9:16)",
+    ratio: "9:16",
+    width: 1080,
+    height: 1920,
+    description: "TikTok, Instagram Stories, YouTube Shorts"
+  },
+  {
+    label: "Square (1:1)",
+    ratio: "1:1",
+    width: 1080,
+    height: 1080,
+    description: "Instagram Posts, Facebook Posts"
+  },
+  {
+    label: "Portrait (4:5)",
+    ratio: "4:5",
+    width: 1080,
+    height: 1350,
+    description: "Instagram Portrait Posts"
+  },
+  {
+    label: "Landscape (16:9)",
+    ratio: "16:9",
+    width: 1920,
+    height: 1080,
+    description: "YouTube, LinkedIn, Twitter"
+  }
+];
+
 const CarouselMaker = () => {
-  const [slides, setSlides] = useState<SlideData[]>([DEFAULT_SLIDE]);
+  const [slides, setSlides] = useState([DEFAULT_SLIDE]);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [aspectRatio, setAspectRatio] = useState<AspectRatio>("9:16");
 
   const currentSlide = slides[currentSlideIndex];
+  const currentAspectConfig = ASPECT_RATIOS.find(ar => ar.ratio === aspectRatio) || ASPECT_RATIOS[0];
 
   const addSlide = () => {
     // Create a new slide as a duplicate of the current one
@@ -116,6 +151,29 @@ const CarouselMaker = () => {
         onSelectProduct={setSelectedProduct}
       />
       
+      {/* Aspect Ratio Selector */}
+      <div className="bg-white rounded-lg shadow-sm border p-4">
+        <Label htmlFor="aspect-ratio">Aspect Ratio</Label>
+        <Select value={aspectRatio} onValueChange={(value) => setAspectRatio(value as AspectRatio)}>
+          <SelectTrigger id="aspect-ratio" className="w-full mt-2">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {ASPECT_RATIOS.map((config) => (
+              <SelectItem key={config.ratio} value={config.ratio}>
+                <div>
+                  <div className="font-medium">{config.label}</div>
+                  <div className="text-xs text-muted-foreground">{config.description}</div>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <p className="text-xs text-muted-foreground mt-2">
+          Export dimensions: {currentAspectConfig.width} × {currentAspectConfig.height}px
+        </p>
+      </div>
+      
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="flex-1">
           <div className="grid grid-cols-1 gap-6">
@@ -127,30 +185,33 @@ const CarouselMaker = () => {
                 downloadCurrentSlide={downloadCurrentSlide}
                 selectedProduct={selectedProduct}
               />
-            
-            <div className="mt-6">
-              <SlideManager
-                slides={slides}
-                currentSlideIndex={currentSlideIndex}
-                setCurrentSlideIndex={setCurrentSlideIndex}
-                addSlide={addSlide}
-                deleteSlide={deleteSlide}
-              />
+              
+              <div className="mt-6">
+                <SlideManager
+                  slides={slides}
+                  currentSlideIndex={currentSlideIndex}
+                  setCurrentSlideIndex={setCurrentSlideIndex}
+                  addSlide={addSlide}
+                  deleteSlide={deleteSlide}
+                  aspectRatio={aspectRatio}
+                />
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      
-      <div className="lg:w-[350px] sticky top-6 h-[calc(100vh-120px)] self-start">
-        <div className="bg-white rounded-lg shadow-sm border p-4 h-full flex flex-col">
-          <h2 className="text-xl font-semibold mb-4">Preview</h2>
-          <CarouselPreview 
-            slides={slides} 
-            currentSlideIndex={currentSlideIndex}
-            setCurrentSlideIndex={setCurrentSlideIndex}
-            downloadAllSlides={() => {}} // This is a placeholder function as we handle the download in CarouselPreview directly
-          />
-        </div>
+        
+        <div className="lg:w-[350px] sticky top-6 h-[calc(100vh-120px)] self-start">
+          <div className="bg-white rounded-lg shadow-sm border p-4 h-full flex flex-col">
+            <h2 className="text-xl font-semibold mb-4">Preview</h2>
+            <CarouselPreview 
+              slides={slides} 
+              currentSlideIndex={currentSlideIndex}
+              setCurrentSlideIndex={setCurrentSlideIndex}
+              downloadAllSlides={() => {}} // This is a placeholder function as we handle the download in CarouselPreview directly
+              aspectRatio={aspectRatio}
+              aspectRatioConfig={currentAspectConfig}
+            />
+          </div>
         </div>
       </div>
     </div>

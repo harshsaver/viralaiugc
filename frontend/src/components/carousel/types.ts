@@ -1,5 +1,15 @@
 export type TextPosition = "top" | "center" | "bottom";
 
+export type AspectRatio = "9:16" | "1:1" | "4:5" | "16:9";
+
+export interface AspectRatioConfig {
+  label: string;
+  ratio: AspectRatio;
+  width: number;
+  height: number;
+  description: string;
+}
+
 export interface TextElement {
   id: string;
   text: string;

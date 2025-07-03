@@ -1,7 +1,6 @@
-
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2 } from "lucide-react";
-import { SlideData } from "./types";
+import { SlideData, AspectRatio } from "./types";
 
 interface SlideManagerProps {
   slides: SlideData[];
@@ -9,6 +8,7 @@ interface SlideManagerProps {
   setCurrentSlideIndex: (index: number) => void;
   addSlide: () => void;
   deleteSlide: (index: number) => void;
+  aspectRatio?: AspectRatio;
 }
 
 const SlideManager = ({
@@ -16,7 +16,8 @@ const SlideManager = ({
   currentSlideIndex,
   setCurrentSlideIndex,
   addSlide,
-  deleteSlide
+  deleteSlide,
+  aspectRatio = "9:16"
 }: SlideManagerProps) => {
   return (
     <div className="bg-white rounded-lg shadow-sm border p-4">
@@ -40,7 +41,12 @@ const SlideManager = ({
           >
             <div className="flex items-center">
               <div 
-                className="w-12 h-20 rounded overflow-hidden mr-3 shrink-0 border"
+                className={`${
+                  aspectRatio === "16:9" ? "w-20 h-12" :
+                  aspectRatio === "1:1" ? "w-16 h-16" :
+                  aspectRatio === "4:5" ? "w-16 h-20" :
+                  "w-12 h-20"
+                } rounded overflow-hidden mr-3 shrink-0 border`}
                 style={{ 
                   backgroundColor: slide.backgroundType === "color" ? slide.backgroundColor : undefined,
                   backgroundImage: slide.backgroundType === "image" ? `url(${slide.backgroundImage})` : undefined,

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Download } from "lucide-react";
-import { SlideData } from "./types";
+import { SlideData, AspectRatio, AspectRatioConfig } from "./types";
 import JSZip from "jszip";
 import { toast } from "@/hooks/use-toast";
 import html2canvas from "html2canvas";
@@ -10,13 +10,23 @@ interface CarouselPreviewProps {
   currentSlideIndex: number;
   setCurrentSlideIndex: (index: number) => void;
   downloadAllSlides: () => void;
+  aspectRatio?: AspectRatio;
+  aspectRatioConfig?: AspectRatioConfig;
 }
 
 const CarouselPreview = ({ 
   slides, 
   currentSlideIndex, 
   setCurrentSlideIndex,
-  downloadAllSlides
+  downloadAllSlides,
+  aspectRatio = "9:16",
+  aspectRatioConfig = {
+    label: "Stories/Reels (9:16)",
+    ratio: "9:16",
+    width: 1080,
+    height: 1920,
+    description: "TikTok, Instagram Stories, YouTube Shorts"
+  }
 }: CarouselPreviewProps) => {
   const currentSlide = slides[currentSlideIndex];
   
@@ -57,8 +67,8 @@ const CarouselPreview = ({
         try {
           // Create a temporary div to render the slide
           const slideDiv = document.createElement('div');
-          slideDiv.style.width = '1080px'; // Higher resolution for better quality
-          slideDiv.style.height = '1920px'; // 9:16 aspect ratio
+          slideDiv.style.width = `${aspectRatioConfig.width}px`;
+          slideDiv.style.height = `${aspectRatioConfig.height}px`;
           slideDiv.style.position = 'relative';
           
           // Set background style based on slide settings
@@ -126,13 +136,16 @@ const CarouselPreview = ({
               const textDiv = document.createElement('div');
               textDiv.style.position = "absolute";
               textDiv.style.width = "100%";
-              textDiv.style.padding = "0 16px";
+              
+              // Scale padding and positioning based on canvas dimensions
+              const positionScale = Math.min(aspectRatioConfig.width / 1080, aspectRatioConfig.height / 1920);
+              textDiv.style.padding = `0 ${16 * positionScale}px`;
               textDiv.style.textAlign = "center";
               
               if (textEl.position === "top") {
-                textDiv.style.top = "32px";
+                textDiv.style.top = `${32 * positionScale}px`;
               } else if (textEl.position === "bottom") {
-                textDiv.style.bottom = "32px";
+                textDiv.style.bottom = `${32 * positionScale}px`;
               } else {
                 textDiv.style.top = "50%";
                 textDiv.style.transform = "translateY(-50%)";
@@ -141,7 +154,11 @@ const CarouselPreview = ({
               const p = document.createElement('p');
               p.textContent = textEl.text;
               p.style.color = "#FFFFFF";
-              p.style.fontSize = `${textEl.fontSize * 3}px`; // Scale up for better quality
+              
+              // Scale font size based on canvas dimensions
+              const scale = Math.min(aspectRatioConfig.width / 1080, aspectRatioConfig.height / 1920) * 3;
+              p.style.fontSize = `${textEl.fontSize * scale}px`;
+              
               p.style.fontFamily = textEl.fontFamily;
               p.style.fontWeight = "bold";
               p.style.textShadow = '-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000';
@@ -162,10 +179,13 @@ const CarouselPreview = ({
               if (sticker.src) {
                 const stickerDiv = document.createElement('div');
                 stickerDiv.style.position = "absolute";
-                stickerDiv.style.left = `${sticker.x * 3}px`; // Scale up for better quality
-                stickerDiv.style.top = `${sticker.y * 3}px`; // Scale up for better quality
-                stickerDiv.style.width = `${sticker.width * 3}px`; // Scale up for better quality
-                stickerDiv.style.height = `${sticker.height * 3}px`; // Scale up for better quality
+                
+                // Scale sticker position and size based on canvas dimensions
+                const scale = Math.min(aspectRatioConfig.width / 1080, aspectRatioConfig.height / 1920) * 3;
+                stickerDiv.style.left = `${sticker.x * scale}px`;
+                stickerDiv.style.top = `${sticker.y * scale}px`;
+                stickerDiv.style.width = `${sticker.width * scale}px`;
+                stickerDiv.style.height = `${sticker.height * scale}px`;
                 
                 const img = document.createElement('img');
                 img.src = sticker.src;
@@ -240,10 +260,26 @@ const CarouselPreview = ({
     }
   };
   
+  // Get aspect ratio class for preview
+  const getAspectRatioClass = () => {
+    switch (aspectRatio) {
+      case "9:16":
+        return "aspect-[9/16]";
+      case "1:1":
+        return "aspect-[1/1]";
+      case "4:5":
+        return "aspect-[4/5]";
+      case "16:9":
+        return "aspect-[16/9]";
+      default:
+        return "aspect-[9/16]";
+    }
+  };
+
   return (
     <div className="flex flex-col items-center h-full">
-      <div className="relative w-full mx-auto flex-1">
-        <div className="aspect-[9/16] bg-white rounded-md shadow-md overflow-hidden border">
+      <div className={`relative w-full ${aspectRatio === "16:9" ? "max-w-2xl" : "max-w-sm"} mx-auto flex-1`}>
+        <div className={`${getAspectRatioClass()} bg-white rounded-md shadow-md overflow-hidden border`}>
           <div 
             id={`slide-preview-${currentSlide.id}`}
             className="h-full relative"
@@ -394,9 +430,12 @@ const CarouselPreview = ({
         </div>
       </div>
       
-      <div className="mt-2 text-center">
+      <div className="mt-2 text-center space-y-1">
         <p className="text-sm text-muted-foreground">
           Slide {currentSlideIndex + 1} of {slides.length}
+        </p>
+        <p className="text-xs text-muted-foreground">
+          {aspectRatioConfig.description}
         </p>
       </div>
       
